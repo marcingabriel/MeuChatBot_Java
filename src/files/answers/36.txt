@@ -1,0 +1,1 @@
+Para consertar um amplificador, verifique primeiro os fusíveis e as conexões internas. Teste os componentes eletrônicos, como resistores e capacitores, para identificar possíveis falhas. Substitua os componentes defeituosos e teste novamente o amplificador. Em caso de dúvida, consulte um técnico em eletrônica.

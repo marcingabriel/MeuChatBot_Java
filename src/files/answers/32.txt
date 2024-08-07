@@ -1,0 +1,1 @@
+Conecte seu microfone ao mixer utilizando um cabo XLR. Insira uma extremidade do cabo na saída do microfone e a outra em uma entrada de microfone do mixer. Ajuste os níveis de ganho e volume no mixer para obter o som desejado.

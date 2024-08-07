@@ -1,0 +1,83 @@
+import analyzer.impl.AlphabetAnalyzer;
+import analyzer.impl.KeywordAnalyzer;
+import analyzer.impl.StopWordsAnalyzer;
+import analyzer.impl.SyntaxAnalyzer;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import utils.Utils;
+
+
+//Realizado no IntelliJ IDEA
+//Autor:Marcio Gabriel Gonçalves Soares
+//Referencia stopwords: https://github.com/thiagoscouto/stopwords_ptbr/blob/master/stopwords_ptbr.txt
+//Referencia Metodo Similaridade: https://medium.com/@everton.tomalok/calculando-similaridades-entre-strings-ebbea21d5b7a
+
+
+public class Main {
+
+    public static void main(String[] args) throws IOException {
+        System.out.println("======================================================================================================================");
+        List<String> wordsList = readWordsFromInput();
+
+        // Verificação léxica, com avaliação do alfabeto usado. 
+        AlphabetAnalyzer alphabetAnalyzer = new AlphabetAnalyzer();
+        List<String> validWords =  alphabetAnalyzer.analyze(wordsList);
+
+        //Removendo pontuacoes !.? ...
+        validWords =  Utils.processWords(validWords);
+        //System.out.println(" Palavras validas:" +  validWords);
+
+        
+        //Identificando e removendo stopwords
+        StopWordsAnalyzer stopWordsAnalyzer = new StopWordsAnalyzer();
+        List<String> palavras = stopWordsAnalyzer.analyze(validWords);
+        System.out.println("Lista de Palavras sem StopWords:" +  palavras); // tabela com todas as palavras no texto [EXCETO STOPWORDS]
+
+        //Identificando Keywords e add na tabela
+        KeywordAnalyzer keywordAnalyzer = new KeywordAnalyzer();
+        List<String> simbolos =  keywordAnalyzer.analyze(validWords);
+        //System.out.println(" Tabela de Simbolos: " +  simbolos); //tabela com todas as palavras presentes no texto que não sejam palavras-chaves e stopwords
+
+
+        //Analise Sintatica 
+        SyntaxAnalyzer analyzer = new SyntaxAnalyzer();
+        List<String> palavrasValidas = new ArrayList<>(); 
+        palavrasValidas = palavras;
+        Map<String, String> tabelaDeSimbolos = new HashMap<>();
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("");
+
+        try {
+            analyzer.analyzePhrase(palavrasValidas, tabelaDeSimbolos);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
+    private static List<String> readWordsFromInput() {
+
+        List<String> wordsList = new ArrayList<>();
+        Scanner scanner = new Scanner(System.in, "UTF-8");
+    
+        System.out.print("Frase de entrada: ");
+        String input = scanner.nextLine(); // Lê a linha digitada pelo usuário
+        String[] words = input.split(" "); // Divide a linha em palavras
+       for (String word : words) {
+       //     System.out.print(word + " "); // Imprime a palavra com um espaço
+           wordsList.add(word.toLowerCase()); // Adiciona a palavra em minúscula à lista
+        }
+        System.out.println(); // Quebra de linha
+    
+            return wordsList;
+    }
+
+
+
+}
