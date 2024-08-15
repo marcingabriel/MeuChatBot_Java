@@ -1,12 +1,9 @@
 package analyzer.impl;
 
-import analyzer.impl.*;
-
 import java.io.*;
 import java.util.*;
-import utils.Utils;
 
-public class InvertedIndex {
+public class InvertedAnalyzer {
 
     private StopWordsAnalyzer stopWordsAnalyzer;
     private AlphabetAnalyzer alphabetAnalyzer;
@@ -17,7 +14,7 @@ public class InvertedIndex {
     private Map<String, String> tabelaDeSimbolos; // Tabela de símbolos
     private Map<Integer, String> answers = new HashMap<>();
 
-    public InvertedIndex(Map<String, String> tabelaDeSimbolos) throws FileNotFoundException {
+    public InvertedAnalyzer(Map<String, String> tabelaDeSimbolos) throws FileNotFoundException {
         this.invertedMap = new HashMap<>();
         this.stopWordsAnalyzer = new StopWordsAnalyzer();
         this.alphabetAnalyzer = new AlphabetAnalyzer();
@@ -61,30 +58,50 @@ public class InvertedIndex {
 
     // Método para confrontar tabela de símbolos com arquivo invertido usando TF-IDF
     public String tfidf(Map<String, String> queryTabelaDeSimbolos) {
-        List<String> tokens = new ArrayList<>();
-        // Adicionar a chave na lista
-        tokens.addAll(queryTabelaDeSimbolos.keySet());
+        List<String> tokens = new ArrayList<>(queryTabelaDeSimbolos.keySet());
         System.out.println(tokens);
+
         List<Integer> usages = new LinkedList<>(Collections.nCopies(answers.size(), 0));
+        List<Set<String>> uniqueTokenSets = new ArrayList<>(answers.size());
+
+        // Inicializando a lista de conjuntos para armazenar tokens únicos por resposta
+        for (int i = 0; i < answers.size(); i++) {
+            uniqueTokenSets.add(new HashSet<>());
+        }
+
+        // Atualizar a lista de usos e armazenar os tokens únicos encontrados por resposta
         for (String token : tokens) {
             if (invertedMap.get(token) != null) {
                 for (Index ind : invertedMap.get(token)) {
                     usages.set(ind.getIndex(), usages.get(ind.getIndex()) + ind.getUsage());
+                    uniqueTokenSets.get(ind.getIndex()).add(token); // Armazena tokens únicos
                 }
             }
         }
+
         int position = 0;
-        for (int i = 0; i < usages.size() - 1; i++) {
-            if (usages.get(position) < usages.get(i + 1)) {
-                position = i + 1;
-            } else if (Objects.equals(usages.get(position), usages.get(i + 1))) {
-                Random random = new Random();
-                int ran = random.nextInt(2);
-                if (ran != 1) position = i + 1;
+
+        // Selecionar com base na variação de palavras (número de tokens únicos)
+        for (int i = 0; i < uniqueTokenSets.size(); i++) {
+            if (uniqueTokenSets.get(position).size() < uniqueTokenSets.get(i).size()) {
+                position = i;
+            } else if (uniqueTokenSets.get(position).size() == uniqueTokenSets.get(i).size()) {
+                // Critério de desempate baseado no valor de uso
+                if (usages.get(position) < usages.get(i)) {
+                    position = i;
+                } else if (Objects.equals(usages.get(position), usages.get(i))) {
+                    // Critério de desempate aleatório em caso de igualdade de variação e uso
+                    Random random = new Random();
+                    int ran = random.nextInt(2);
+                    if (ran != 1) position = i;
+                }
             }
         }
+
         return answers.get(position);
     }
+
+
 
     // Adiciona palavra ao índice invertido
     private void addKey(String word, int index) {

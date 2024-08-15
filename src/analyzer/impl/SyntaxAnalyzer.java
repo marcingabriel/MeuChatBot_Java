@@ -1,6 +1,5 @@
 package analyzer.impl;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,7 +13,7 @@ import utils.Utils;
 public class SyntaxAnalyzer {
     private static final Set<String> finalidades = new HashSet<>(Arrays.asList("tocar","gravar", "ensaiar", "performar", "performances", "compor", "estudar", "começar", "aprender", "praticar", "ao vivo", "estúdio", "iniciante", "profissional", "profissionalmente", "para o ano novo", "para o natal", "tocar rock", "natal", "rock", "presentar", "jazz", "clássico", "pop"));
     private static final Set<String> acoes = new HashSet<>(Arrays.asList("afinar", "ajustar", "configurar", "limpar", "conectar", "conecta", "testar", "consertar", "comprar", "vender", "ligar", "desligar", "lubrificar", "desmontar"));
-    private static final Set<String> produtos = new HashSet<>(Arrays.asList("guitarra", "violão", "piano", "teclado", "bateria", "baixo", "saxofone", "trompete", "flauta", "violino", "microfone", "amplificador", "mixer","fone"));
+    private static final Set<String> produtos = new HashSet<>(Arrays.asList("guitarra", "violão", "piano", "teclado", "bateria", "baixo", "saxofone", "trompete", "flauta", "violino", "microfone", "amplificador", "mixer","fone", "ukulele"));
     private static final Set<String> locais = new HashSet<>(Arrays.asList("em um piano padrão", "em uma guitarra"));
     private static final Set<String> verbos = new HashSet<>(Arrays.asList("está", "é", "estão", "são"));
     private static final Set<String> valores = new HashSet<>(Arrays.asList("preço", "valor", "custa"));
@@ -25,7 +24,7 @@ public class SyntaxAnalyzer {
 
     public boolean analyzePhrase(List<String> palavrasValidas, Map<String, String> tabelaDeSimbolos) throws IOException {
         boolean resultado = false;
-        InvertedIndex invertedIndex = new InvertedIndex(tabelaDeSimbolos);
+        InvertedAnalyzer invertedIndex = new InvertedAnalyzer(tabelaDeSimbolos);
         invertedIndex.indexarRespostasPadrao("src/files/answers");
 
         while (!resultado) {

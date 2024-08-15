@@ -1,7 +1,6 @@
 package analyzer.impl;
 
 import analyzer.Analyzer;
-
 import java.util.ArrayList;
 import java.util.List;
 

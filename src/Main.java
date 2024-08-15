@@ -21,7 +21,19 @@ import utils.Utils;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        System.out.println("======================================================================================================================");
+        System.out.println("************************************************************************");
+        System.out.println("*                                                                      *");
+        System.out.println("*      Bem-Vindo ao meu ChatBot Musical!                               *");
+        System.out.println("*                                                                      *");
+        System.out.println("*  Essas são os tipos de perguntas  que eu posso responder:            *");
+        System.out.println("*  1. Como afinar meu violão?                                          *");
+        System.out.println("*  2. Quero um teclado para começar a aprender.                        *");
+        System.out.println("*  3. Qual o preço da guitarra gibson?                                 *");
+        System.out.println("*                                                                      *");
+        System.out.println("*  Digite 'sair' a qualquer momento para encerrar a conversa.          *");
+        System.out.println("*                                                                      *");
+        System.out.println("************************************************************************");
+
         List<String> wordsList = readWordsFromInput();
 
         // Verificação léxica, com avaliação do alfabeto usado. 
@@ -38,11 +50,10 @@ public class Main {
         List<String> palavras = stopWordsAnalyzer.analyze(validWords);
         System.out.println("Lista de Palavras sem StopWords:" +  palavras); // tabela com todas as palavras no texto [EXCETO STOPWORDS]
 
-        //Identificando Keywords e add na tabela
+        //Identificando Keywords
         KeywordAnalyzer keywordAnalyzer = new KeywordAnalyzer();
         List<String> simbolos =  keywordAnalyzer.analyze(validWords);
         //System.out.println(" Tabela de Simbolos: " +  simbolos); //tabela com todas as palavras presentes no texto que não sejam palavras-chaves e stopwords
-
 
         //Analise Sintatica 
         SyntaxAnalyzer analyzer = new SyntaxAnalyzer();
@@ -66,7 +77,7 @@ public class Main {
         List<String> wordsList = new ArrayList<>();
         Scanner scanner = new Scanner(System.in, "UTF-8");
     
-        System.out.print("Frase de entrada: ");
+        System.out.print("Pergunte: ");
         String input = scanner.nextLine(); // Lê a linha digitada pelo usuário
         String[] words = input.split(" "); // Divide a linha em palavras
        for (String word : words) {

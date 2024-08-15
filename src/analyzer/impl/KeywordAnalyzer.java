@@ -32,9 +32,6 @@ public class KeywordAnalyzer implements Analyzer {
     public List<String> analyze(List<String> words) {
         List<String> nonKeywords = new ArrayList<>();
         List<String> foundKeywords = new ArrayList<>();
-
-        
-
         for (String word : words) {
             if (keywords.contains(word)) {
                 foundKeywords.add(word);
@@ -42,8 +39,6 @@ public class KeywordAnalyzer implements Analyzer {
                 nonKeywords.add(word);
             }
         }
-
-     
         return nonKeywords;
     }
 
@@ -51,7 +46,6 @@ public class KeywordAnalyzer implements Analyzer {
     public String analyzeWord(String word) {
         return isSimilar(word, this.keywords) ? word : null;
     }
-
 
     private boolean isSimilar(String palavra, List<String> set) {
         for (String palavraDoSet : set) {
@@ -61,6 +55,5 @@ public class KeywordAnalyzer implements Analyzer {
         }
         return false;
     }
-
 }
 
