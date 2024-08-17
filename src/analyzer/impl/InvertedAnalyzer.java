@@ -14,7 +14,7 @@ public class InvertedAnalyzer {
     private Map<String, String> tabelaDeSimbolos; // Tabela de símbolos
     private Map<Integer, String> answers = new HashMap<>();
 
-    public InvertedAnalyzer(Map<String, String> tabelaDeSimbolos) throws FileNotFoundException {
+    public InvertedAnalyzer(Map<String, String> tabelaDeSimbolos) throws IOException {
         this.invertedMap = new HashMap<>();
         this.stopWordsAnalyzer = new StopWordsAnalyzer();
         this.alphabetAnalyzer = new AlphabetAnalyzer();
@@ -22,12 +22,26 @@ public class InvertedAnalyzer {
         this.keywordsAnalyzer = new KeywordAnalyzer();
         this.tokenAnalyzer = new TokenAnalyzer();
     }
-
+    private static final String COUNT_FILE = "src/files/previousFileCount.txt";
+    private int previousFileCount = loadPreviousFileCount();
     // Indexar um conjunto de respostas-padrão
     public void indexarRespostasPadrao(String respostasDiretorio) throws IOException {
         File dir = new File(respostasDiretorio);
         File[] files = dir.listFiles((d, name) -> name.endsWith(".txt"));
         if (files == null) return;
+
+        // Verifica se o número de arquivos mudou
+
+        if (files.length == previousFileCount) {
+            // Se o número de arquivos não mudou, apenas carregar o índice invertido
+            System.out.println("TESTANDOOOOOOO");
+            loadInvertedIndex();
+            return;
+        }
+
+        // Atualiza a contagem de arquivos processados
+        previousFileCount = files.length;
+        savePreviousFileCount(previousFileCount); // Salva a contagem de arquivos
 
         int position = 0;
         for (File file : files) {
@@ -39,7 +53,6 @@ public class InvertedAnalyzer {
                 for (String word : words) {
                     if (stopWordsAnalyzer.analyzeWord(word) == null) {
                         if (keywordsAnalyzer.analyzeWord(word) != null) {
-                            //System.out.println(word);
                             tokenAnalyzer.analyzeWord((keywordsAnalyzer.analyzeWord(word)));
                         }
                         for (String key : tokenAnalyzer.getTokens()) {
@@ -54,6 +67,59 @@ public class InvertedAnalyzer {
             scnFile.close();
         }
         dataWriter(); // Grava o índice invertido em arquivo
+    }
+
+    // Carrega a contagem de arquivos processados anteriormente
+    private int loadPreviousFileCount() throws IOException {
+        File countFile = new File(COUNT_FILE);
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(countFile))) {
+            String line = reader.readLine();
+            return line != null ? Integer.parseInt(line) : -1;
+        }
+    }
+
+    // Salva a contagem de arquivos processados em um arquivo de texto
+    private void savePreviousFileCount(int count) throws IOException {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(COUNT_FILE))) {
+            writer.println(count);
+        }
+    }
+
+    // Carrega o índice invertido de arquivo
+    private void loadInvertedIndex() throws IOException {
+        invertedMap.clear();
+        File dir = new File("src/files/answers");
+        File[] files = dir.listFiles((d, name) -> name.endsWith(".txt"));
+        if (files == null) return;
+
+        int position = 0;
+        for (File file : files) {
+            Scanner scnFile = new Scanner(file);
+            while (scnFile.hasNextLine()) {
+                String text = scnFile.nextLine();
+                String[] words = alphabetAnalyzer.format(text);
+                answers.put(position, text); // Adiciona resposta ao mapa de respostas
+                position++;
+            }
+            scnFile.close();
+        }
+        System.out.println(answers);
+
+
+        File arquivo = new File("src/files/invertedIndex.txt");
+        Scanner inArchive = new Scanner(arquivo);
+
+        while (inArchive.hasNext()) {
+            String key = inArchive.next();
+            String texto = inArchive.nextLine();
+            String[] words = texto.trim().split("[,.!?'@_] *| +");
+            List<Index> list = new LinkedList<>();
+
+
+            invertedMap.put(key, list);
+            System.out.println(invertedMap);
+        }
     }
 
     // Método para confrontar tabela de símbolos com arquivo invertido usando TF-IDF
@@ -104,17 +170,31 @@ public class InvertedAnalyzer {
 
 
     // Adiciona palavra ao índice invertido
-    private void addKey(String word, int index) {
-        invertedMap.computeIfAbsent(word, k -> new ArrayList<>()).add(new Index(index, 1));
+    public void addKey(String word, int index){
+        if (invertedMap.containsKey(word)){
+            for (Index key: invertedMap.get(word)) {
+                if(key.getIndex() == index) {
+                    key.incrementUsage();
+                    return;
+                }
+            }
+            invertedMap.get(word).add(new Index(index,1));
+
+        } else {
+            Index key = new Index(index,1);
+            List<Index> list = new ArrayList<>();
+            list.add(key);
+            invertedMap.put(word,list);
+        }
     }
 
     // Grava o índice invertido em arquivo
     private void dataWriter() throws IOException {
         FileWriter fw = new FileWriter("src/files/invertedIndex.txt");
         PrintWriter printWriter = new PrintWriter(fw);
-        invertedMap.forEach((key, value) -> {
-            value.sort(Comparator.naturalOrder());
-            printWriter.println(key + " " + value);
+        invertedMap.forEach((key1, value) -> {
+            value.stream().sorted();
+            printWriter.println(key1 + " " + value.toString());
         });
         printWriter.close();
     }
