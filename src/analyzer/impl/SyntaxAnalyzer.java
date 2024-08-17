@@ -1,6 +1,7 @@
 package analyzer.impl;
 
 import java.io.IOException;
+import java.text.Normalizer;
 import java.util.*;
 
 import utils.Utils;
@@ -27,7 +28,14 @@ public class SyntaxAnalyzer {
         while (!resultado) {
             if (processGrammar(palavrasValidas, tabelaDeSimbolos)) {
                 Map<String, String> tabelaDeSimbolosAux = new HashMap<>();
-                String  resposta = invertedIndex.tfidf(tabelaDeSimbolos);
+
+                for (String palavra : palavrasValidas) {
+                    System.out.println(palavra);
+                    if (!tabelaDeSimbolos.containsValue(palavra)) {
+                        tabelaDeSimbolosAux.put(palavra, classifyWord(palavra)); // Ajuste o valor conforme necessário
+                    }
+                }
+                String  resposta = invertedIndex.tfidf(tabelaDeSimbolosAux);
                 System.out.println("Resposta: " + resposta);
                 System.out.print("Fazer outra pergunta: ");
                 palavrasValidas = readWordsFromInput();
@@ -41,7 +49,7 @@ public class SyntaxAnalyzer {
                 palavrasValidas =  alphabetAnalyzer.analyze(palavrasValidas);
                 palavrasValidas =  Utils.processWords(palavrasValidas);
                 palavrasValidas = stopWordsAnalyzer.analyze(palavrasValidas);
-                tabelaDeSimbolos.clear();
+                tabelaDeSimbolosAux.clear();
 
             } else {
                 //System.out.print("Digite 0 ou exit para sair a qualquer momento: ");
@@ -59,7 +67,7 @@ public class SyntaxAnalyzer {
                 palavrasValidas = stopWordsAnalyzer.analyze(palavrasValidas);
             }
         }
-        // Imprime a tabela de símbolos
+        // Imprime a tabela de símbolos apos o exit da conversa
         System.out.println("\nTabela de Símbolos:");
         for (Map.Entry<String, String> entry : tabelaDeSimbolos.entrySet()) {
             System.out.println(entry.getValue() + ": " + entry.getKey());
@@ -256,6 +264,12 @@ public class SyntaxAnalyzer {
         return false;
     }
 
+    private String removerAcentos(String palavra) {
+        String normalized = Normalizer.normalize(palavra, Normalizer.Form.NFD);
+        return normalized.replaceAll("[^\\p{ASCII}]", "");
+    }
+
+    // Método que lê palavras da entrada e remove os acentos
     private List<String> readWordsFromInput() {
         List<String> wordsList = new ArrayList<>();
         Scanner scanner = new Scanner(System.in, "UTF-8");
@@ -263,8 +277,8 @@ public class SyntaxAnalyzer {
         String input = scanner.nextLine(); // Lê a linha digitada pelo usuário
         String[] words = input.split(" "); // Divide a linha em palavras
         for (String word : words) {
-            //     System.out.print(word + " "); // Imprime a palavra com um espaço
-            wordsList.add(word.toLowerCase()); // Adiciona a palavra em minúscula à lista
+            String wordSemAcento = removerAcentos(word.toLowerCase()); // Remove acento e converte para minúsculas
+            wordsList.add(wordSemAcento); // Adiciona a palavra à lista
         }
         System.out.println(); // Quebra de linha
 

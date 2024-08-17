@@ -4,6 +4,7 @@ import analyzer.impl.StopWordsAnalyzer;
 import analyzer.impl.SyntaxAnalyzer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,7 @@ public class Main {
         System.out.println("*                                                                      *");
         System.out.println("*  Essas são os tipos de perguntas  que eu posso responder:            *");
         System.out.println("*  1. Como afinar meu violão?                                          *");
-        System.out.println("*  2. Quero um teclado para iniciantes.                        *");
+        System.out.println("*  2. Quero um teclado para iniciantes.                                *");
         System.out.println("*  3. Qual o preço da guitarra gibson?                                 *");
         System.out.println("*                                                                      *");
         System.out.println("*  Digite '0' ou 'exit' a qualquer momento para encerrar a conversa.   *");
@@ -70,21 +71,25 @@ public class Main {
         }
     }
 
-    private static List<String> readWordsFromInput() {
+    private static String removerAcentos(String palavra) {
+        String normalized = Normalizer.normalize(palavra, Normalizer.Form.NFD);
+        return normalized.replaceAll("[^\\p{ASCII}]", "");
+    }
 
+    // Método que lê palavras da entrada e remove os acentos
+    private static List<String> readWordsFromInput() {
         List<String> wordsList = new ArrayList<>();
         Scanner scanner = new Scanner(System.in, "UTF-8");
-    
-        System.out.print("Pergunte: ");
+        System.out.println("Pergunte: ");
         String input = scanner.nextLine(); // Lê a linha digitada pelo usuário
         String[] words = input.split(" "); // Divide a linha em palavras
-       for (String word : words) {
-       //     System.out.print(word + " "); // Imprime a palavra com um espaço
-           wordsList.add(word.toLowerCase()); // Adiciona a palavra em minúscula à lista
+        for (String word : words) {
+            String wordSemAcento = removerAcentos(word.toLowerCase()); // Remove acento e converte para minúsculas
+            wordsList.add(wordSemAcento); // Adiciona a palavra à lista
         }
         System.out.println(); // Quebra de linha
-    
-            return wordsList;
+
+        return wordsList;
     }
 
 

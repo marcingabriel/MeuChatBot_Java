@@ -1,0 +1,1 @@
+Se o seu piano digital não conecta ao software de gravação, verifique as portas MIDI ou USB, e se o driver específico do modelo está instalado corretamente no computador. Muitos pianos digitais modernos, como o Yamaha Clavinova, exigem drivers específicos para funcionar corretamente em diferentes sistemas operacionais.
