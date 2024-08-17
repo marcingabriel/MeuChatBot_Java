@@ -36,6 +36,7 @@ public class InvertedAnalyzer {
             // Se o número de arquivos não mudou, apenas carregar o índice invertido
             System.out.println("TESTANDOOOOOOO");
             loadInvertedIndex();
+            System.out.println(invertedMap);
             return;
         }
 
@@ -106,21 +107,33 @@ public class InvertedAnalyzer {
         }
         System.out.println(answers);
 
-
-        File arquivo = new File("src/files/invertedIndex.txt");
-        Scanner inArchive = new Scanner(arquivo);
-
-        while (inArchive.hasNext()) {
-            String key = inArchive.next();
-            String texto = inArchive.nextLine();
-            String[] words = texto.trim().split("[,.!?'@_] *| +");
-            List<Index> list = new LinkedList<>();
-
-
-            invertedMap.put(key, list);
-            System.out.println(invertedMap);
+        try (BufferedReader br = new BufferedReader(new FileReader("src/files/invertedIndex.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                processLine(line);
+            }
         }
+
     }
+
+    private void processLine(String line) {
+        String[] parts = line.split(" ", 2);
+        String word = parts[0];
+        String indicesPart = parts[1].trim().replaceAll("[\\[\\]]", ""); // Remove colchetes
+
+        List<Index> indices = new ArrayList<>();
+        String[] indexPairs = indicesPart.split(", ");
+        for (String pair : indexPairs) {
+            String[] positionCount = pair.split(":");
+            int position = Integer.parseInt(positionCount[0]);
+            int count = Integer.parseInt(positionCount[1]);
+            indices.add(new Index(position, count));
+        }
+
+        invertedMap.put(word, indices);
+    }
+
+
 
     // Método para confrontar tabela de símbolos com arquivo invertido usando TF-IDF
     public String tfidf(Map<String, String> queryTabelaDeSimbolos) {
