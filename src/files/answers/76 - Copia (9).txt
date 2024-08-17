@@ -1,0 +1,1 @@
+Se testar o microfone não captura som, o problema pode estar no cabo ou na cápsula do microfone. Verifique o cabo XLR e, caso não seja esse o problema, pode ser necessário substituir a cápsula danificada .

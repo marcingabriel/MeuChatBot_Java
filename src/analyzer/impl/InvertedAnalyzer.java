@@ -24,8 +24,9 @@ public class InvertedAnalyzer {
     }
     private static final String COUNT_FILE = "src/files/previousFileCount.txt";
     private int previousFileCount = loadPreviousFileCount();
+
     // Indexar um conjunto de respostas-padrão
-    public void indexarRespostasPadrao(String respostasDiretorio) throws IOException {
+    public void indexAnswers(String respostasDiretorio) throws IOException {
         File dir = new File(respostasDiretorio);
         File[] files = dir.listFiles((d, name) -> name.endsWith(".txt"));
         if (files == null) return;
@@ -33,7 +34,6 @@ public class InvertedAnalyzer {
         // Verifica se o número de arquivos mudou para atualizar apenas quando o conjunto de respostas-padrão mudar
         if (files.length == previousFileCount) {
             // Se o número de arquivos não mudou, apenas carregar o índice invertido
-            System.out.println("conjunto de respostas-padrão eh o mesmo");
             loadInvertedIndex();
             //System.out.println(invertedMap);
             return;
@@ -136,40 +136,55 @@ public class InvertedAnalyzer {
 
 
     // Método para confrontar tabela de símbolos com arquivo invertido usando TF-IDF
+    // Método para confrontar tabela de símbolos com arquivo invertido usando TF-IDF
     public String tfidf(Map<String, String> queryTabelaDeSimbolos) {
+        // Extrai as chaves do queryTabelaDeSimbolos, que são os tokens a serem comparados
         List<String> tokens = new ArrayList<>(queryTabelaDeSimbolos.keySet());
-        System.out.println(tokens);
-
-        List<Integer> usages = new LinkedList<>(Collections.nCopies(answers.size(), 0));
+        List<Double> tfidfScores = new LinkedList<>(Collections.nCopies(answers.size(), 0.0));
         List<Set<String>> uniqueTokenSets = new ArrayList<>(answers.size());
 
-        // Inicializando a lista de conjuntos para armazenar tokens únicos por resposta
+        // Inicializar os conjuntos de tokens únicos por resposta
         for (int i = 0; i < answers.size(); i++) {
             uniqueTokenSets.add(new HashSet<>());
         }
 
-        // Atualizar a lista de usos e armazenar os tokens únicos encontrados por resposta
+        // Calcular o IDF para cada token presente em queryTabelaDeSimbolos
+        Map<String, Double> idfMap = new HashMap<>();
         for (String token : tokens) {
-            if (invertedMap.get(token) != null) {
-                for (Index ind : invertedMap.get(token)) {
-                    usages.set(ind.getIndex(), usages.get(ind.getIndex()) + ind.getUsage());
-                    uniqueTokenSets.get(ind.getIndex()).add(token); // Armazena tokens únicos
+            int documentCount = 0;
+            if (invertedMap.containsKey(token)) {
+                documentCount = invertedMap.get(token).size();
+            }
+            idfMap.put(token, Math.log((double) answers.size() / (documentCount + 1)));
+        }
+
+        // Calcular TF-IDF e armazenar tokens únicos
+        for (String token : tokens) {
+            List<Index> indices = invertedMap.get(token);
+            if (indices != null) {
+                for (Index index : indices) {
+                    int answerIndex = index.getIndex();
+                    double tf = (double) index.getUsage() / answers.get(answerIndex).length(); // TF calculation
+                    double idf = idfMap.get(token);
+                    double tfidf = tf * idf;
+                    tfidfScores.set(answerIndex, tfidfScores.get(answerIndex) + tfidf);
+                    uniqueTokenSets.get(answerIndex).add(token); // Armazena tokens únicos
                 }
             }
         }
 
         int position = 0;
 
-        // Selecionar com base na variação de palavras (número de tokens únicos)
-        for (int i = 0; i < uniqueTokenSets.size(); i++) {
-            if (uniqueTokenSets.get(position).size() < uniqueTokenSets.get(i).size()) {
+        // Seleção com base no TF-IDF e desempate por variação de tokens
+        for (int i = 0; i < tfidfScores.size(); i++) {
+            if (tfidfScores.get(position) < tfidfScores.get(i)) {
                 position = i;
-            } else if (uniqueTokenSets.get(position).size() == uniqueTokenSets.get(i).size()) {
-                // Critério de desempate baseado no valor de uso
-                if (usages.get(position) < usages.get(i)) {
+            } else if (Objects.equals(tfidfScores.get(position), tfidfScores.get(i))) {
+                // Desempate baseado no número de tokens únicos
+                if (uniqueTokenSets.get(position).size() < uniqueTokenSets.get(i).size()) {
                     position = i;
-                } else if (Objects.equals(usages.get(position), usages.get(i))) {
-                    // Critério de desempate aleatório em caso de igualdade de variação e uso
+                } else if (uniqueTokenSets.get(position).size() == uniqueTokenSets.get(i).size()) {
+                    // Desempate aleatório em caso de igualdade total
                     Random random = new Random();
                     int ran = random.nextInt(2);
                     if (ran != 1) position = i;
@@ -201,6 +216,7 @@ public class InvertedAnalyzer {
         }
     }
 
+
     // Grava o índice invertido em arquivo
     private void dataWriter() throws IOException {
         FileWriter fw = new FileWriter("src/files/invertedIndex.txt");
@@ -219,14 +235,25 @@ public class InvertedAnalyzer {
 class Index implements Comparable<Index> {
     private final int index;
     private int usage;
+    private String token;
 
     public Index(int index, int usage) {
         this.index = index;
         this.usage = usage;
     }
 
+    public Index(int index, int usage, String token) {
+        this.index = index;
+        this.usage = usage;
+        this.token = token;
+    }
+
     public int getIndex() {
         return index;
+    }
+
+    public String getToken() {
+        return token;
     }
 
     public int getUsage() {

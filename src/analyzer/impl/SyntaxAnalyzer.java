@@ -1,13 +1,8 @@
 package analyzer.impl;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
+
 import utils.Utils;
 
 public class SyntaxAnalyzer {
@@ -25,34 +20,43 @@ public class SyntaxAnalyzer {
     public boolean analyzePhrase(List<String> palavrasValidas, Map<String, String> tabelaDeSimbolos) throws IOException {
         boolean resultado = false;
         InvertedAnalyzer invertedIndex = new InvertedAnalyzer(tabelaDeSimbolos);
-        invertedIndex.indexarRespostasPadrao("src/files/answers");
+        invertedIndex.indexAnswers("src/files/answers");
         AlphabetAnalyzer alphabetAnalyzer = new AlphabetAnalyzer();
         StopWordsAnalyzer stopWordsAnalyzer = new StopWordsAnalyzer() ;
 
         while (!resultado) {
-            if(palavrasValidas.getFirst().equals("0") || palavrasValidas.getFirst().equals("exit") ){
-                resultado = true;
-            }
-
             if (processGrammar(palavrasValidas, tabelaDeSimbolos)) {
-                String resposta = invertedIndex.tfidf(tabelaDeSimbolos);
+                Map<String, String> tabelaDeSimbolosAux = new HashMap<>();
+                String  resposta = invertedIndex.tfidf(tabelaDeSimbolos);
                 System.out.println("Resposta: " + resposta);
                 System.out.print("Fazer outra pergunta: ");
                 palavrasValidas = readWordsFromInput();
+                //System.out.println(palavrasValidas);
+                if( palavrasValidas.contains("0") || palavrasValidas.contains("exit") ){
+                    System.out.println("************************************************************************");
+                    System.out.println("*                       Conversa Finalizada                            *");
+                    System.out.println("************************************************************************");
+                    break;
+                }
                 palavrasValidas =  alphabetAnalyzer.analyze(palavrasValidas);
                 palavrasValidas =  Utils.processWords(palavrasValidas);
                 palavrasValidas = stopWordsAnalyzer.analyze(palavrasValidas);
-                resultado = false;
+                tabelaDeSimbolos.clear();
 
             } else {
                 //System.out.print("Digite 0 ou exit para sair a qualquer momento: ");
                 System.out.println("Não entendi.");
                 System.out.print("Por favor, reescreva a frase: ");
                 palavrasValidas = readWordsFromInput();
+                if( palavrasValidas.contains("0") || palavrasValidas.contains("exit") ){
+                    System.out.println("************************************************************************");
+                    System.out.println("*                       Conversa Finalizada                            *");
+                    System.out.println("************************************************************************");
+                    break;
+                }
                 palavrasValidas =  alphabetAnalyzer.analyze(palavrasValidas);
                 palavrasValidas =  Utils.processWords(palavrasValidas);
                 palavrasValidas = stopWordsAnalyzer.analyze(palavrasValidas);
-                resultado = false;
             }
         }
         // Imprime a tabela de símbolos

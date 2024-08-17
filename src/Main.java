@@ -27,7 +27,7 @@ public class Main {
         System.out.println("*                                                                      *");
         System.out.println("*  Essas são os tipos de perguntas  que eu posso responder:            *");
         System.out.println("*  1. Como afinar meu violão?                                          *");
-        System.out.println("*  2. Quero um teclado para começar a aprender.                        *");
+        System.out.println("*  2. Quero um teclado para iniciantes.                        *");
         System.out.println("*  3. Qual o preço da guitarra gibson?                                 *");
         System.out.println("*                                                                      *");
         System.out.println("*  Digite '0' ou 'exit' a qualquer momento para encerrar a conversa.   *");
@@ -48,7 +48,7 @@ public class Main {
         //Identificando e removendo stopwords
         StopWordsAnalyzer stopWordsAnalyzer = new StopWordsAnalyzer();
         List<String> palavras = stopWordsAnalyzer.analyze(validWords);
-        System.out.println("Lista de Palavras sem StopWords:" +  palavras); // tabela com todas as palavras no texto [EXCETO STOPWORDS]
+        //System.out.println("Lista de Palavras sem StopWords:" +  palavras); // tabela com todas as palavras no texto [EXCETO STOPWORDS]
 
         //Identificando Keywords
         KeywordAnalyzer keywordAnalyzer = new KeywordAnalyzer();
