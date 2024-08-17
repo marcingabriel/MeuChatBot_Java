@@ -134,7 +134,7 @@ public class InvertedAnalyzer {
     }
 
 
-    // Método para confrontar tabela de símbolos com arquivo invertido usando TF-IDF
+
     // Método para confrontar tabela de símbolos com arquivo invertido usando TF-IDF
     public String tfidf(Map<String, String> queryTabelaDeSimbolos) {
         List<String> tokens = new ArrayList<>(queryTabelaDeSimbolos.keySet());
@@ -159,7 +159,7 @@ public class InvertedAnalyzer {
 
         int position = 0;
 
-        // Selecionar com base na variação de palavras (número de tokens únicos)
+        // Selecionar com base na variação de palavras
         for (int i = 0; i < uniqueTokenSets.size(); i++) {
             if (uniqueTokenSets.get(position).size() < uniqueTokenSets.get(i).size()) {
                 position = i;
@@ -168,7 +168,7 @@ public class InvertedAnalyzer {
                 if (usages.get(position) < usages.get(i)) {
                     position = i;
                 } else if (Objects.equals(usages.get(position), usages.get(i))) {
-                    // Critério de desempate aleatório
+                    // Critério de desempate aleatório em caso de igualdade de variação e uso
                     Random random = new Random();
                     int ran = random.nextInt(2);
                     if (ran != 1) position = i;
