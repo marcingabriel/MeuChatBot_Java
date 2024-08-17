@@ -30,7 +30,7 @@ public class Main {
         System.out.println("*  2. Quero um teclado para começar a aprender.                        *");
         System.out.println("*  3. Qual o preço da guitarra gibson?                                 *");
         System.out.println("*                                                                      *");
-        System.out.println("*  Digite 'sair' a qualquer momento para encerrar a conversa.          *");
+        System.out.println("*  Digite '0' ou 'exit' a qualquer momento para encerrar a conversa.   *");
         System.out.println("*                                                                      *");
         System.out.println("************************************************************************");
 
@@ -69,8 +69,6 @@ public class Main {
             throw new RuntimeException(e);
         }
     }
-
-
 
     private static List<String> readWordsFromInput() {
 

@@ -30,13 +30,12 @@ public class InvertedAnalyzer {
         File[] files = dir.listFiles((d, name) -> name.endsWith(".txt"));
         if (files == null) return;
 
-        // Verifica se o número de arquivos mudou
-
+        // Verifica se o número de arquivos mudou para atualizar apenas quando o conjunto de respostas-padrão mudar
         if (files.length == previousFileCount) {
             // Se o número de arquivos não mudou, apenas carregar o índice invertido
-            System.out.println("TESTANDOOOOOOO");
+            System.out.println("conjunto de respostas-padrão eh o mesmo");
             loadInvertedIndex();
-            System.out.println(invertedMap);
+            //System.out.println(invertedMap);
             return;
         }
 
@@ -44,6 +43,7 @@ public class InvertedAnalyzer {
         previousFileCount = files.length;
         savePreviousFileCount(previousFileCount); // Salva a contagem de arquivos
 
+        // Atualiza o arquivo invertido
         int position = 0;
         for (File file : files) {
             Scanner scnFile = new Scanner(file);
@@ -105,7 +105,7 @@ public class InvertedAnalyzer {
             }
             scnFile.close();
         }
-        System.out.println(answers);
+        //System.out.println(answers);
 
         try (BufferedReader br = new BufferedReader(new FileReader("src/files/invertedIndex.txt"))) {
             String line;
@@ -205,9 +205,9 @@ public class InvertedAnalyzer {
     private void dataWriter() throws IOException {
         FileWriter fw = new FileWriter("src/files/invertedIndex.txt");
         PrintWriter printWriter = new PrintWriter(fw);
-        invertedMap.forEach((key1, value) -> {
+        invertedMap.forEach((key, value) -> {
             value.stream().sorted();
-            printWriter.println(key1 + " " + value.toString());
+            printWriter.println(key + " " + value.toString());
         });
         printWriter.close();
     }

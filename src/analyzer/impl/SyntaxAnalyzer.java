@@ -26,28 +26,35 @@ public class SyntaxAnalyzer {
         boolean resultado = false;
         InvertedAnalyzer invertedIndex = new InvertedAnalyzer(tabelaDeSimbolos);
         invertedIndex.indexarRespostasPadrao("src/files/answers");
+        AlphabetAnalyzer alphabetAnalyzer = new AlphabetAnalyzer();
+        StopWordsAnalyzer stopWordsAnalyzer = new StopWordsAnalyzer() ;
 
         while (!resultado) {
+            if(palavrasValidas.getFirst().equals("0") || palavrasValidas.getFirst().equals("exit") ){
+                resultado = true;
+            }
+
             if (processGrammar(palavrasValidas, tabelaDeSimbolos)) {
                 String resposta = invertedIndex.tfidf(tabelaDeSimbolos);
                 System.out.println("Resposta: " + resposta);
-                resultado = true;
+                System.out.print("Fazer outra pergunta: ");
+                palavrasValidas = readWordsFromInput();
+                palavrasValidas =  alphabetAnalyzer.analyze(palavrasValidas);
+                palavrasValidas =  Utils.processWords(palavrasValidas);
+                palavrasValidas = stopWordsAnalyzer.analyze(palavrasValidas);
+                resultado = false;
+
             } else {
+                //System.out.print("Digite 0 ou exit para sair a qualquer momento: ");
                 System.out.println("Não entendi.");
                 System.out.print("Por favor, reescreva a frase: ");
                 palavrasValidas = readWordsFromInput();
-                // Verificação léxica, com avaliação do alfabeto usado.
-                AlphabetAnalyzer alphabetAnalyzer = new AlphabetAnalyzer();
                 palavrasValidas =  alphabetAnalyzer.analyze(palavrasValidas);
-                //Removendo pontuacoes !.? ...
                 palavrasValidas =  Utils.processWords(palavrasValidas);
-                StopWordsAnalyzer stopWordsAnalyzer = new StopWordsAnalyzer() ;
                 palavrasValidas = stopWordsAnalyzer.analyze(palavrasValidas);
-                System.out.println(palavrasValidas);
                 resultado = false;
             }
         }
-
         // Imprime a tabela de símbolos
         System.out.println("\nTabela de Símbolos:");
         for (Map.Entry<String, String> entry : tabelaDeSimbolos.entrySet()) {
@@ -93,7 +100,7 @@ public class SyntaxAnalyzer {
         for (String[] regra : regras) {
             if (matchExactRule(tags, regra)) {
                 anotarTabela(palavras, tags, tabelaDeSimbolos);
-                System.out.println("A frase segue a regra exata: <" + String.join("> <", regra) + ">.");
+                //System.out.println("A frase segue a regra exata: <" + String.join("> <", regra) + ">.");
                 return true;
             }
         }
@@ -249,7 +256,6 @@ public class SyntaxAnalyzer {
         List<String> wordsList = new ArrayList<>();
         Scanner scanner = new Scanner(System.in, "UTF-8");
 
-        System.out.print("Frase de entrada: ");
         String input = scanner.nextLine(); // Lê a linha digitada pelo usuário
         String[] words = input.split(" "); // Divide a linha em palavras
         for (String word : words) {
