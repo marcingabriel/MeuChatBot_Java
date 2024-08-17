@@ -30,7 +30,6 @@ public class SyntaxAnalyzer {
                 Map<String, String> tabelaDeSimbolosAux = new HashMap<>();
 
                 for (String palavra : palavrasValidas) {
-                    System.out.println(palavra);
                     if (!tabelaDeSimbolos.containsValue(palavra)) {
                         tabelaDeSimbolosAux.put(palavra, classifyWord(palavra)); // Ajuste o valor conforme necessário
                     }
